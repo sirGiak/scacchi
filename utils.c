@@ -204,64 +204,67 @@ Res_azione muovi(Colore turno,int x,int y,int a,int b,Scacchiera s){
     unsigned short int sposta=0;
     Pedina *p=s[x][y].pedina, *p2=s[a][b].pedina; //p2 ha l'indirizzo della pedina in posizione a b ovvero dove dobbiamo spostare la pedina puntata da p
     char colore[7];
-
-    info_pedina(p);
-
-    info_colore(turno, colore);
-    //printf("Colore %d - personaggio: %d - posizione: %d %d\n", p->colore, p->personaggio, p->posizione[0], p->posizione[1]);
-
-    if(p2!=NULL && p2->colore==p->colore)
-        printf("Posizione già occupata da una pedina dello stesso colore\n");
-    else if(a>7 || b>7 || a<0 || b<0 || x>7 || y>7 || x<0 || y<0)
-        printf("Le coordinate devono essere incluse nell'intervallo [0;7]\n");
-        else if(a==x && b==y)
-            printf("Coordinate iniziali e finali devono essere diverse\n");
-            else if(turno!=p->colore)
-                printf("Deve giocare il %s\n", colore);
+    if(p==NULL)
+        printf("Casella iniziale vuota.\n");
     else{
-        switch (p->personaggio)
-        {
-            case re:
-                if((x-1<=a && a<=x+1) && (y-1<=b && b<=y+1))
-                    sposta=1;
-            break;
+        info_pedina(p);
 
-            case regina:
-                if(a!=x && b!=y){//spostamento obliquo
-                    sposta=spostamento_in_diagonale(x,y,a,b);
-                    if(sposta)
+        info_colore(turno, colore);
+        //printf("Colore %d - personaggio: %d - posizione: %d %d\n", p->colore, p->personaggio, p->posizione[0], p->posizione[1]);
+
+        if(p2!=NULL && p2->colore==p->colore)
+            printf("Posizione già occupata da una pedina dello stesso colore\n");
+        else if(a>7 || b>7 || a<0 || b<0 || x>7 || y>7 || x<0 || y<0)
+            printf("Le coordinate devono essere incluse nell'intervallo [0;7]\n");
+            else if(a==x && b==y)
+                printf("Coordinate iniziali e finali devono essere diverse\n");
+                else if(turno!=p->colore)
+                    printf("Deve giocare il %s\n", colore);
+        else{
+            switch (p->personaggio)
+            {
+                case re:
+                    if((x-1<=a && a<=x+1) && (y-1<=b && b<=y+1))
+                        sposta=1;
+                break;
+
+                case regina:
+                    if(a!=x && b!=y){//spostamento obliquo
+                        sposta=spostamento_in_diagonale(x,y,a,b);
+                        if(sposta)
+                            sposta=controllo_percorso(x,y,a,b,s);
+                    }
+                    else //spostamento orizzontale o verticale
                         sposta=controllo_percorso(x,y,a,b,s);
-                }
-                else //spostamento orizzontale o verticale
-                    sposta=controllo_percorso(x,y,a,b,s);
 
-            break;
+                break;
 
-            case alfiere:
-                if(a!=x && b!=y){
-                    sposta=spostamento_in_diagonale(x,y,a,b);
-                    if(sposta)
+                case alfiere:
+                    if(a!=x && b!=y){
+                        sposta=spostamento_in_diagonale(x,y,a,b);
+                        if(sposta)
+                            sposta=controllo_percorso(x,y,a,b,s);
+                    }
+                break;
+
+                case cavallo:
+                    sposta=spostamento_cavallo(x,y,a,b);
+                break;
+
+                case torre:
+                    if(a==x || b==y)
                         sposta=controllo_percorso(x,y,a,b,s);
-                }
-            break;
+                break;
 
-            case cavallo:
-                sposta=spostamento_cavallo(x,y,a,b);
-            break;
+                case pedone:
+                        sposta=spostamento_pedone(x,y,a,b,s);
 
-            case torre:
-                if(a==x || b==y)
-                    sposta=controllo_percorso(x,y,a,b,s);
-            break;
+                break;
 
-            case pedone:
-                    sposta=spostamento_pedone(x,y,a,b,s);
-
-            break;
-
-            default:
-                printf("Pedina non riconosciuta.\n");
-            break;
+                default:
+                    printf("Pedina non riconosciuta.\n");
+                break;
+            }
         }
     }
 
